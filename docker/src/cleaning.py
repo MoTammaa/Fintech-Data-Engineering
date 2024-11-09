@@ -1,6 +1,8 @@
 import M1
 import pandas as pd
 
+data_dir = "./data/"
+
 def clean(df : pd.DataFrame) -> pd.DataFrame:
     """
     This function cleans the data.
@@ -61,8 +63,12 @@ def tidy_up(df : pd.DataFrame) -> pd.DataFrame:
 
     return df_tidied
 
-if __name__ == '__main__':
-    df = M1.read_parquet_file("./data/fintech_data.parquet")
+def main():
+    df = M1.read_parquet_file(f"{data_dir}fintech_data.parquet")
     cleaned = clean(df)
-    M1.show_missing_values_stats(cleaned)
-    # M1.save_cleaned_dataset_to_csv(cleaned, "testt.csv", "./data/")
+    M1.show_missing_values_stats(cleaned, True)
+    M1.save_cleaned_dataset_to_parquet(cleaned, "testt", data_dir)
+    
+
+if __name__ == '__main__':
+    main()
