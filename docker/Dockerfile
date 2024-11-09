@@ -7,9 +7,13 @@ RUN apt-get update && \
 
 WORKDIR /app
 
+# Copy only the requirements file first to leverage Docker cache
 COPY requirements.txt /app/requirements.txt
 
+# Install dependencies
 RUN pip install -r requirements.txt
 
+# Copy the rest of the application code
+COPY . /app
 
 ENTRYPOINT ["python", "src/main.py"]
