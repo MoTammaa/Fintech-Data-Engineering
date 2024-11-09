@@ -378,7 +378,7 @@ fintech_df['home_ownership'].value_counts()
 # # Calculate the mode for each group
 # group_means = fintech_df.groupby('annual_inc')['emp_title'].apply(lambda x: x.mode().iloc[0] if not x.mode().empty else 'Unknown')
 # group_means = fintech_df.groupby(['grade', 'annual_inc'])['emp_title'].apply(lambda x: x.mode().iloc[0] if not x.mode().empty else 'Unknown')
-def fill_na_emp_title(df : pd.DataFrame, grouping_rows: list = ['grade', 'home_ownership']) -> pd.DataFrame:
+def fillna_emp_title(df : pd.DataFrame, grouping_rows: list = ['grade', 'home_ownership']) -> pd.DataFrame:
     mode = df['emp_title'].mode().iloc[0]
     group_means = df.groupby(grouping_rows)['emp_title'].apply(lambda x: x.mode().iloc[0] if not x.mode().empty else mode)
     def filling_lambda_emp_title(row, group_means, grouping_rows):
@@ -417,7 +417,7 @@ fintech_df['emp_title'].isnull().sum()
 # #### 2. For `int_rate` we will use the `grade` column to impute the missing values. And we will check which of the median or mean is better to use. (reasoning above)
 
 # %%
-def int_rate_fillna(df: pd.DataFrame, meanormedian ='mean') -> pd.DataFrame:
+def fillna_int_rate(df: pd.DataFrame, meanormedian ='mean') -> pd.DataFrame:
     fintech_df_int_rate = df.copy()
 
     fintech_df_int_rate['int_rate'] = fintech_df_int_rate.groupby('grade')['int_rate'].transform(lambda x: x.fillna(x.median() if meanormedian == 'median' else x.mean()))
@@ -436,8 +436,8 @@ def int_rate_fillna(df: pd.DataFrame, meanormedian ='mean') -> pd.DataFrame:
 
 
 # %%
-fintech_df_int_rate_mean = int_rate_fillna(fintech_df, 'mean')
-fintech_df_int_rate_median = int_rate_fillna(fintech_df, 'median')
+fintech_df_int_rate_mean = fillna_int_rate(fintech_df, 'mean')
+fintech_df_int_rate_median = fillna_int_rate(fintech_df, 'median')
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
@@ -457,7 +457,7 @@ plt.show()
 # There may not be a noticiable difference between the two methods. So we can use the mean.
 
 # %%
-fintech_df['int_rate'] = int_rate_fillna(fintech_df)['int_rate']
+fintech_df['int_rate'] = fillna_int_rate(fintech_df)['int_rate']
 
 lookup_table[lookup_table['column'] == 'int_rate']
 
@@ -465,7 +465,7 @@ lookup_table[lookup_table['column'] == 'int_rate']
 # #### 3. since the `annual_inc_joint` is the combined income of the borrower and the co-borrower, we can impute the missing values with the value of `annual_inc` as we can say that the co-borrower has no income.
 
 # %%
-def annual_inc_joint_fillna(df: pd.DataFrame) -> pd.DataFrame:
+def fillna_annual_inc_joint(df: pd.DataFrame) -> pd.DataFrame:
     fintech_df_annual_inc_joint = df.copy()
 
     fintech_df_annual_inc_joint['annual_inc_joint'] = fintech_df_annual_inc_joint['annual_inc_joint'].fillna(fintech_df_annual_inc_joint['annual_inc'])
@@ -484,7 +484,7 @@ def annual_inc_joint_fillna(df: pd.DataFrame) -> pd.DataFrame:
     return fintech_df_annual_inc_joint
 
 # %%
-fintech_df['annual_inc_joint'] = annual_inc_joint_fillna(fintech_df)['annual_inc_joint']
+fintech_df['annual_inc_joint'] = fillna_annual_inc_joint(fintech_df)['annual_inc_joint']
 lookup_table[lookup_table['column'] == 'annual_inc_joint']
 
 # %% [markdown]
@@ -495,7 +495,7 @@ lookup_table[lookup_table['column'] == 'annual_inc_joint']
 
 # %%
 
-def emp_length_fillna(df: pd.DataFrame):
+def fillna_emp_length(df: pd.DataFrame):
     fintech_df_emp_length = df.copy()
     mode = fintech_df_emp_length['emp_length'].mode()[0]
     fintech_df_emp_length['emp_length'] = fintech_df_emp_length.groupby(['emp_title', 'annual_inc'])['emp_length'].transform(lambda x: x.fillna(x.mode()[0] if x.mode().shape[0] > 0 else mode))
@@ -523,7 +523,7 @@ def emp_length_fillna(df: pd.DataFrame):
 
 # %%
 
-fintech_df_emplength = emp_length_fillna(fintech_df)
+fintech_df_emplength = fillna_emp_length(fintech_df)
 print(fintech_df['emp_length'].value_counts(),fintech_df_emplength['emp_length'].value_counts())
 # fintech_df_emplength.corr(numeric_only=True)['emp_length'].sort_values(ascending=False) * 100
 # print(test[test['emp_length'].isnull()].shape[0])
@@ -554,7 +554,7 @@ fintech_df = fintech_df_emplength
 # 
 
 # %%
-def home_ownership_fillna(df: pd.DataFrame) -> pd.DataFrame:
+def fillna_home_ownership(df: pd.DataFrame) -> pd.DataFrame:
     fintech_df_home_ownership = df.copy()
     fintech_df_home_ownership['home_ownership'] = fintech_df_home_ownership['home_ownership'].str.upper()
     # mode = fintech_df_home_ownership['home_ownership'].mode()[0]
@@ -582,7 +582,7 @@ def home_ownership_fillna(df: pd.DataFrame) -> pd.DataFrame:
     
     return fintech_df_home_ownership
     
-fintech_df = home_ownership_fillna(fintech_df)
+fintech_df = fillna_home_ownership(fintech_df)
 fintech_df['home_ownership'].value_counts(), lookup_table[lookup_table['column'] == 'home_ownership']
 
 # %% [markdown]

@@ -18,14 +18,18 @@ def handling_outliers(df : pd.DataFrame) -> pd.DataFrame:
     This function handles the outliers in the data.
     It calls functions from the M1.
     """
-    pass
+    df_cleaned = M1.remove_outliers_log(df, M1.outliers_cols)
 
 def imputation(df : pd.DataFrame) -> pd.DataFrame:
     """
     This function imputes the missing values in the data.
     It calls functions from the M1.
     """
-    pass
+    df_imputed = M1.fill_na_emp_title(df)
+    df_imputed = M1.fillna_int_rate(df_imputed, 'mean')
+    df_imputed = M1.fillna_annual_inc_joint(df_imputed)
+    df_imputed = M1.fillna_emp_length(df_imputed)
+    df_imputed = M1.fillna_home_ownership(df_imputed)
 
 def transformation(df : pd.DataFrame) -> pd.DataFrame:
     """
