@@ -6,7 +6,8 @@ def clean(df : pd.DataFrame) -> pd.DataFrame:
     This function cleans the data.
     It calls other functions in this file.
     """
-    no_outliers = handling_outliers(df)
+    tidy = tidy_up(df)
+    no_outliers = handling_outliers(tidy)
     imputed = imputation(no_outliers)
     transformed = transformation(imputed)
     return transformed
@@ -27,7 +28,7 @@ def imputation(df : pd.DataFrame) -> pd.DataFrame:
     This function imputes the missing values in the data.
     It calls functions from the M1.
     """
-    df_imputed = M1.fill_na_emp_title(df)
+    df_imputed = M1.fillna_emp_title(df)
     df_imputed = M1.fillna_int_rate(df_imputed, 'mean')
     df_imputed = M1.fillna_annual_inc_joint(df_imputed)
     df_imputed = M1.fillna_emp_length(df_imputed)
@@ -59,4 +60,9 @@ def tidy_up(df : pd.DataFrame) -> pd.DataFrame:
     df_tidied = M1.tidy_type(df_tidied)
 
     return df_tidied
-    
+
+if __name__ == '__main__':
+    df = M1.read_parquet_file("./data/fintech_data.parquet")
+    cleaned = clean(df)
+    M1.show_missing_values_stats(cleaned)
+    # M1.save_cleaned_dataset_to_csv(cleaned, "testt.csv", "./data/")
