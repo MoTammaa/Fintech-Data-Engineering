@@ -111,8 +111,11 @@ plot_correlation_heatmap(fintech_df_uncleaned)
 
 # %%
 # tidy up column names by removing spaces and converting to lower case
-fintech_df = fintech_df_uncleaned.copy()
-fintech_df.columns = fintech_df_uncleaned.columns.str.replace(' ', '_').str.lower()
+def tidy_column_names(df: pd.DataFrame) -> pd.DataFrame:
+    df_cpy = df.copy()
+    df_cpy.columns = df.columns.str.replace(' ', '_').str.lower()
+    return df_cpy
+fintech_df = tidy_column_names(fintech_df_uncleaned)
 
 # %%
 fintech_df.columns
@@ -203,9 +206,9 @@ print(duplicate_pairs)
 # %%
 def clean_case_sensitivity(df: pd.DataFrame) -> pd.DataFrame:
     fintech_df_cpy = df.copy()
-    fintech_df_cpy['emp_title'] = fintech_df['emp_title'].str.lower()
-    fintech_df_cpy['type'] = fintech_df_cpy['type'].str.lower()
-    fintech_df_cpy['description'] = fintech_df_cpy['description'].str.lower()
+    fintech_df_cpy['emp_title'] = fintech_df['emp_title'].str.lower().str.strip()
+    fintech_df_cpy['type'] = fintech_df_cpy['type'].str.lower().str.strip()
+    fintech_df_cpy['description'] = fintech_df_cpy['description'].str.lower().str.strip()
     return fintech_df_cpy
 fintech_df = clean_case_sensitivity(fintech_df)
 
@@ -216,7 +219,11 @@ fintech_df = clean_case_sensitivity(fintech_df)
 fintech_df['type'].value_counts()
 
 # %%
-fintech_df['type'] = fintech_df['type'].replace({'joint app': 'joint'})
+def tidy_type(df: pd.DataFrame) -> pd.DataFrame:
+    fintech_df_cpy = df.copy()
+    fintech_df_cpy['type'] = fintech_df['type'].replace({'joint app': 'joint'})
+    return fintech_df_cpy
+fintech_df = tidy_type(fintech_df)
 fintech_df['type'].value_counts()
 
 # %% [markdown]
