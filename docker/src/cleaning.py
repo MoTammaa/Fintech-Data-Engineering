@@ -20,6 +20,8 @@ def handling_outliers(df : pd.DataFrame) -> pd.DataFrame:
     """
     df_cleaned = M1.remove_outliers_log(df, M1.outliers_cols)
 
+    return df_cleaned
+
 def imputation(df : pd.DataFrame) -> pd.DataFrame:
     """
     This function imputes the missing values in the data.
@@ -31,12 +33,18 @@ def imputation(df : pd.DataFrame) -> pd.DataFrame:
     df_imputed = M1.fillna_emp_length(df_imputed)
     df_imputed = M1.fillna_home_ownership(df_imputed)
 
+    return df_imputed
+
 def transformation(df : pd.DataFrame) -> pd.DataFrame:
     """
     This function transforms the data.
     It calls functions from the M1.
     """
-    pass
+    df_transformed = M1.add_new_features(df)
+    df_transformed = M1.encode_categorical(df_transformed, M1.encoding_candidate_columns)
+    df_transformed = M1.normalize_columns(df_transformed)
+
+    return df_transformed
 
 def tidy_up(df : pd.DataFrame) -> pd.DataFrame:
     """

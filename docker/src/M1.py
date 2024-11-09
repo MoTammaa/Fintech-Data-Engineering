@@ -665,10 +665,10 @@ for col in encoding_candidate_columns:
 # %%
 # lookup_table = pd.DataFrame(columns=['column', 'original', 'imputed'])
 
-def encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
+def encode_categorical(df: pd.DataFrame, encoding_columns: list = encoding_candidate_columns) -> pd.DataFrame:
     fintech_df_encoded = df.copy()
-    label_encoding_columns = list(filter(lambda c : 'state' in c or c == 'letter_grade', encoding_candidate_columns))
-    one_hot_encoding_columns = list(filter(lambda c : c not in label_encoding_columns, encoding_candidate_columns))
+    label_encoding_columns = list(filter(lambda c : 'state' in c or c == 'letter_grade', encoding_columns))
+    one_hot_encoding_columns = list(filter(lambda c : c not in label_encoding_columns, encoding_columns))
     for col in label_encoding_columns:
         fintech_df_encoded[col] = fintech_df_encoded[col].astype('category')
         fintech_df_encoded[col+'_encoded'] = fintech_df_encoded[col].cat.codes
