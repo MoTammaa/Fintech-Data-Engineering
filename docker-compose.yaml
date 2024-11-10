@@ -35,4 +35,5 @@ services:
     restart: on-failure
 
     volumes:
-      - ./app/volumes/pgadmin_data:/var/lib/pgadmin
+      - ./app/volumes/data_pgadmin:/var/lib/pgadmin
+      - ./app/volumes/data_pgadmin/sessions:/var/lib/pgadmin/sessions
