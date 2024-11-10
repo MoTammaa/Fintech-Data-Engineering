@@ -14,6 +14,6 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy the rest of the application code
-COPY . /app
+# COPY . /app
 
 ENTRYPOINT ["python", "src/main.py"]

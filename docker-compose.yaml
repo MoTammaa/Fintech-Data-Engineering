@@ -16,11 +16,11 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: testdb
+      POSTGRES_DB: fintechdb
     ports:
       - 5432:5432
     volumes:
-      - ./app/volumes/data_postgres:/var/lib/postgresql/data 
+      - ./app/volumes/data_postgres:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
@@ -36,12 +36,3 @@ services:
 
     volumes:
       - ./app/volumes/pgadmin_data:/var/lib/pgadmin
-
-
-
-
-
-
-
-
-
