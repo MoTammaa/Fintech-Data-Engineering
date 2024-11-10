@@ -1,8 +1,5 @@
 import cleaning
-
-
-
-
+import db
 
 
 
@@ -14,4 +11,5 @@ import cleaning
 
 if __name__ == '__main__':
     print("Hello World\nHi")
-    cleaning.main()
+    df = cleaning.get_cleaned_dataset()
+    db.save_to_db(df, False)

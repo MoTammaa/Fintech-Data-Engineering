@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 # Install PostgreSQL development packages
 RUN apt-get update && \
-    apt-get install -y libpq-dev && \
+    apt-get install -y libpq-dev gcc && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -11,6 +11,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 
 # Install dependencies
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Copy the rest of the application code

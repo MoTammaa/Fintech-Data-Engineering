@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
-from sqlalchemy.engine import Engine
 import pandas as pd
 
-engine : Engine = create_engine('postgresql://root:root@pgdatabase:5432/fintechdb')
+engine = create_engine('postgresql://root:root@pgdatabase:5432/fintechdb')
 
 def save_to_db(cleaned : pd.DataFrame, append : bool):
     if(engine.connect()):

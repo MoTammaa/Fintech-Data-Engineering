@@ -5,3 +5,4 @@ seaborn
 matplotlib
 pyarrow
 Sqlalchemy
+psycopg2-binary

@@ -63,12 +63,16 @@ def tidy_up(df : pd.DataFrame) -> pd.DataFrame:
 
     return df_tidied
 
-def main():
+def get_cleaned_dataset() -> pd.DataFrame:
+    """
+    This function reads the dataset from the parquet file and cleans it then returns the cleaned dataset.
+    """
     df = M1.read_parquet_file(f"{data_dir}fintech_data.parquet")
     cleaned = clean(df)
-    M1.show_missing_values_stats(cleaned, True)
-    M1.save_cleaned_dataset_to_parquet(cleaned, "testt", data_dir)
+    # M1.show_missing_values_stats(cleaned, True)
+    # M1.save_cleaned_dataset_to_parquet(cleaned, "testt", data_dir)
+    return cleaned
     
 
 if __name__ == '__main__':
-    main()
+    get_cleaned_dataset()
