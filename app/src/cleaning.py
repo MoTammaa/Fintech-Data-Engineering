@@ -1,6 +1,7 @@
 import M1
 import pandas as pd
 import main
+import db
 
 
 def clean(df : pd.DataFrame) -> pd.DataFrame:
@@ -13,6 +14,28 @@ def clean(df : pd.DataFrame) -> pd.DataFrame:
     imputed = imputation(no_outliers)
     transformed = transformation(imputed)
     return transformed
+
+def clean_row(row : pd.DataFrame) -> pd.DataFrame:
+    """
+    This function cleans a single row of data.
+    It calls functions from the M1 as well as the database.
+    """
+    row_cleaned = tidy_up(row)
+    row_cleaned = M1.remove_outliers_log(row_cleaned, M1.outliers_cols) # doesn't matter if it's a single row. The log transformation will be the same.
+    candidate_impute_cols = ['emp_title', 'int_rate', 'annual_inc_joint', 'emp_length', 'home_ownership']
+    for index, r in row_cleaned.iterrows():
+        for col in candidate_impute_cols:
+            if pd.isnull(r[col]):
+                val = db.get_imputation_from_db(r, main.DATA_TABLENAME, col)
+                row_cleaned[col] = val             
+
+
+    row_cleaned = M1.add_new_features(row_cleaned)
+    # row_cleaned = M1.encode_
+    row_cleaned = M1.normalize_columns(row_cleaned)
+
+    return row_cleaned
+
 
 
 
@@ -72,7 +95,7 @@ def get_cleaned_dataset() -> pd.DataFrame:
     # M1.show_missing_values_stats(cleaned, True)
     # M1.save_cleaned_dataset_to_parquet(cleaned, "testt", main.DATA_DIR)
     return cleaned
-    
+   
 
 if __name__ == '__main__':
     get_cleaned_dataset()

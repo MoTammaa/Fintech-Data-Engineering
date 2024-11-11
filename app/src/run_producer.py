@@ -1,7 +1,7 @@
 import docker
 import time
 
-def start_producer(id, kafka_url='localhost:9092', topic_name='fintech'):
+def start_producer(id, kafka_url='kafka:9092', topic_name='fintech'):
   docker_client = docker.from_env()
   container = docker_client.containers.run(
     "mmedhat1910/dew24_streaming_producer",

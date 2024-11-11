@@ -4,6 +4,7 @@ import json
 import time
 from datetime import datetime
 import main
+import cleaning as cl
 
 def run_consumer(kafka_url:str=None, topic:str=None):
     if not kafka_url:
@@ -32,7 +33,7 @@ def run_consumer(kafka_url:str=None, topic:str=None):
             foundEOF = False
             for tp, messages in message.items():
                 for msg in messages:
-                    # print(f"Received: {msg.value}")
+                    print(f"Received: {msg.value}")
 
                     # if the message value is EOF, then stop listening
                     if msg.value == 'EOF':
@@ -43,6 +44,10 @@ def run_consumer(kafka_url:str=None, topic:str=None):
                     msg.value['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                     new_row = pd.DataFrame([msg.value], columns=['timestamp','Customer Id','Emp Title','Emp Length','Home Ownership','Annual Inc','Annual Inc Joint','Verification Status','Zip Code','Addr State','Avg Cur Bal','Tot Cur Bal','Loan Status','Loan Amount','State','Funded Amount','Term','Int Rate','Grade','Issue Date','Pymnt Plan','Type','Purpose','Description'])
+                    # print("\n"*3, "raw data", new_row, "\n"*3, '-'*50)
+                    # # new_row['Emp Title'] = None  ## to test the cleaning function
+
+                    # print("\n"*3, "cleaned data", cl.clean_row(new_row), "\n"*3, '-'*50)
                     df = pd.concat([df, new_row], ignore_index=True)
                 if foundEOF:
                     break
@@ -54,7 +59,7 @@ def run_consumer(kafka_url:str=None, topic:str=None):
     consumer.close()
 
     print("Consumer stopped.")
-    print(f"Received {len(df)} messages.")
+    print(f"Received {len(df)} messages. raw data:")
     print(df.head())
 
     df.to_csv(f'{main.DATA_DIR}/{int(time.time())}-output.csv', index=False)
