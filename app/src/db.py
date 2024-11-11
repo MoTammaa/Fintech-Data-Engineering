@@ -3,12 +3,12 @@ import pandas as pd
 
 engine = create_engine('postgresql://root:root@pgdatabase:5432/fintechdb')
 
-def save_to_db(cleaned : pd.DataFrame, append : bool):
+def save_to_db(cleaned : pd.DataFrame, append : bool, tablename : str='fintech_data_MET_P02_52_20136_clean'):
     if(engine.connect()):
         print('Connected to Database')
         try:
             print('Writing cleaned dataset to database')
-            cleaned.to_sql('cleaned_db', con=engine, if_exists=('fail' if not append else 'append'))
+            cleaned.to_sql(tablename, con=engine, if_exists=('fail' if not append else 'append'))
             print('Done writing to database')
         except ValueError as vx:
             print('Cleaned Table already exists.')

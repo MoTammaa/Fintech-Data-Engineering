@@ -1,14 +1,25 @@
 version: "3.9"
 services:
+  # ------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------
+  # ---------------------- Main
+
   main:
     build: .
     container_name: fintechapp
     volumes:
       - ./app/src:/app/src
       - ./app/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock # Mount Docker socket
+    # environment:
+    #   - DOCKER_HOST=unix:///var/run/docker.sock # Set Docker host
     depends_on:
       - pgdatabase
     restart: "on-failure"
+
+  # ------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------
+  # ---------------------- Postgres
 
   pgdatabase:
     image: postgres:13
@@ -21,6 +32,10 @@ services:
       - 5432:5432
     volumes:
       - ./app/volumes/data_postgres:/var/lib/postgresql/data
+
+  # ------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------
+  # ---------------------- pgAdmin
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,3 +52,34 @@ services:
     volumes:
       - ./app/volumes/data_pgadmin:/var/lib/pgadmin
       - ./app/volumes/data_pgadmin/sessions:/var/lib/pgadmin/sessions
+
+  # ------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------
+  # ---------------------- Zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  # ------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------
+  # ---------------------- Kafka
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "fintech-topic:1:1" # topic:partitions:replication-factor
+    depends_on:
+      - zookeeper

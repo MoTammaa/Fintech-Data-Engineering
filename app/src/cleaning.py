@@ -1,7 +1,7 @@
 import M1
 import pandas as pd
+import main
 
-data_dir = "./data/"
 
 def clean(df : pd.DataFrame) -> pd.DataFrame:
     """
@@ -67,10 +67,10 @@ def get_cleaned_dataset() -> pd.DataFrame:
     """
     This function reads the dataset from the parquet file and cleans it then returns the cleaned dataset.
     """
-    df = M1.read_parquet_file(f"{data_dir}fintech_data.parquet")
+    df = M1.read_parquet_file(f"{main.DATA_DIR}fintech_data.parquet")
     cleaned = clean(df)
     # M1.show_missing_values_stats(cleaned, True)
-    # M1.save_cleaned_dataset_to_parquet(cleaned, "testt", data_dir)
+    # M1.save_cleaned_dataset_to_parquet(cleaned, "testt", main.DATA_DIR)
     return cleaned
     
 

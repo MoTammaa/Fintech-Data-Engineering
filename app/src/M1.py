@@ -40,7 +40,7 @@ lookup_table : pd.DataFrame = pd.DataFrame(columns=['column', 'original', 'imput
 
 # %%
 def read_parquet_file(file_path=data_dir + 'fintech_data.parquet') -> pd.DataFrame:
-    global fintech_df_uncleaned, data_dir
+    # global fintech_df_uncleaned, data_dir
     fintech_df_uncleaned = pq.read_table(file_path).to_pandas().set_index('Loan Id')
     return fintech_df_uncleaned
 # read_parquet_file().sample(2)
