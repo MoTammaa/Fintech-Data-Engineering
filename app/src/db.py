@@ -16,7 +16,7 @@ def save_to_db(cleaned : pd.DataFrame, append : bool, tablename : str='fintech_d
         print('Connected to Database')
         try:
             print('Writing cleaned dataset to database')
-            cleaned.to_sql(tablename, con=engine, if_exists=('fail' if not append else 'append'))
+            cleaned.to_sql(tablename, con=engine, if_exists=('replace' if not append else 'append'))
             print('Done writing to database')
         except ValueError as vx:
             print('Cleaned Table already exists.')
@@ -55,6 +55,71 @@ def get_imputation_from_db(row, tablename : str='fintech_data_MET_P02_52_20136_c
     else:
         print('Failed to connect to Database')
         return None
+    
+
+def impute_by_lookup_table(row, table_name : str='lookup_fintech_data_MET_P02_52_20136', column_name : str='addr_state'):
+    if(engine.connect()):
+        print('Connected to Database')
+        try:
+            print('Reading lookup data from database')
+            val = None
+            count_query = f"SELECT COUNT(*) FROM public.\"{table_name}\" AS t WHERE t.column = '{column_name}'"
+            count_result = pd.read_sql_query(count_query, con=engine)
+            count = count_result.iloc[0, 0]  # Extract the count value
+            if count > 0:
+                print('Reading imputed data from database')
+                impute_query = f"SELECT imputed FROM public.\"{table_name}\" AS t WHERE t.column = '{column_name}' AND t.original = '{row[column_name]}'"
+                val = pd.read_sql_query(impute_query, con=engine)
+                if not val.empty:
+                    val = val.iloc[0, 0]
+
+            print('Done reading from database')
+            return val
+        except ValueError as vx:
+            print(f'Table {table_name} does not exist.')
+        except Exception as ex:
+            print(ex)
+    else:
+        print('Failed to connect to Database')
+        return None
+    
+def get_tables_from_db() -> list:
+    if engine.connect():
+        print('Connected to Database')
+        try:
+            print('Reading tables from database')
+            tables = pd.read_sql_query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';", con=engine)
+            print('Done reading from database')
+            # change the tables to a list of strings
+            tables = tables['table_name'].tolist()
+            return tables
+        except ValueError as vx:
+            print('Table does not exist.')
+        except Exception as ex:
+            print(ex)
+    else:
+        print('Failed to connect to Database')
+        return None
+
+
+def get_columns_from_db(tablename : str='fintech_data_MET_P02_52_20136_clean') -> list:
+    if engine.connect():
+        print('Connected to Database')
+        try:
+            print('Reading columns from database')
+            columns = pd.read_sql_query(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{tablename}'", con=engine)
+            print('Done reading from database')
+            # change the columns to a list of strings
+            columns = columns['column_name'].tolist()
+            return columns
+        except ValueError as vx:
+            print('Table does not exist.')
+        except Exception as ex:
+            print(ex)
+    else:
+        print('Failed to connect to Database')
+        return None
+
 
                              
 

@@ -22,21 +22,45 @@ def clean_row(row : pd.DataFrame) -> pd.DataFrame:
     """
     row_cleaned = tidy_up(row)
     row_cleaned = M1.remove_outliers_log(row_cleaned, M1.outliers_cols) # doesn't matter if it's a single row. The log transformation will be the same.
-    candidate_impute_cols = ['emp_title', 'int_rate', 'annual_inc_joint', 'emp_length', 'home_ownership']
-    for index, r in row_cleaned.iterrows():
-        for col in candidate_impute_cols:
-            if pd.isnull(r[col]):
-                val = db.get_imputation_from_db(r, main.DATA_TABLENAME, col)
-                row_cleaned[col] = val             
-
+    row_cleaned = row_impute_and_label_encode(row_cleaned)
 
     row_cleaned = M1.add_new_features(row_cleaned)
     # row_cleaned = M1.encode_
+    row_OneHotEncode(row_cleaned)
     row_cleaned = M1.normalize_columns(row_cleaned)
 
     return row_cleaned
 
 
+
+def row_OneHotEncode(row : pd.DataFrame) -> pd.DataFrame:
+    candidate_onehot_cols = list(filter(lambda x: x not in row.columns, db.get_columns_from_db(main.DATA_TABLENAME)))
+    print("candidate_onehot_cols: ", candidate_onehot_cols)
+
+
+
+def row_impute_and_label_encode(row : pd.DataFrame) -> pd.DataFrame:
+    candidate_impute_cols = ['emp_title', 'int_rate', 'annual_inc_joint', 'emp_length', 'home_ownership', 'state', 'addr_state', 'letter_grade']
+    leave_same_name = ['emp_length', 'home_ownership', 'grade']
+    for index, r in row.iterrows():
+        # set the loan id to the actual index of the row
+        r['Loan Id'] = index
+        for col in candidate_impute_cols:
+            enterif = (col in row.columns)
+            if enterif:
+                enterif = (enterif and pd.isnull(r[col]))
+
+            if enterif:
+                val = db.get_imputation_from_db(r, main.DATA_TABLENAME, col)
+                row[col] = val
+            else: # label encoding
+                val = db.impute_by_lookup_table(r, main.LOOKUP_TABLENAME, col)
+                if val is not None:
+                    if col in leave_same_name:
+                        row[col] = val
+                    else:
+                        row[f"{col}_encoded"] = val
+    return row
 
 
 def handling_outliers(df : pd.DataFrame) -> pd.DataFrame:
