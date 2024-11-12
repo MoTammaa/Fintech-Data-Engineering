@@ -67,7 +67,7 @@ enccolumn__column_value_dict = {
 def row_OneHotEncode(row : pd.DataFrame) -> pd.DataFrame:
     candidate_onehot_cols = list(filter(lambda x: x not in row.columns and x in enccolumn__column_value_dict \
                                         , db.get_columns_from_db(main.DATA_TABLENAME)))
-    print("candidate_onehot_cols: ", candidate_onehot_cols)
+    # print("candidate_onehot_cols: ", candidate_onehot_cols)
     for index, r in row.iterrows():
         for col in candidate_onehot_cols:
             # add new hot encoded columns
@@ -107,7 +107,7 @@ def row_label_encode(row : pd.DataFrame) -> pd.DataFrame:
 
             if not enterif: # label encoding
                 val = db.impute_by_lookup_table(r, main.LOOKUP_TABLENAME, col)
-                print(f"---label encoding row[{col}]: {r[col]} to {val}")
+                # print(f"---label encoding row[{col}]: {r[col]} to {val}")
                 if val is not None:
                     if col in leave_same_name:
                         row[col] = val
