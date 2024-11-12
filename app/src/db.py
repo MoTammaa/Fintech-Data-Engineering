@@ -42,8 +42,10 @@ def get_imputation_from_db(row, tablename : str='fintech_data_MET_P02_52_20136_c
                 val = row['annual_inc']
             elif methods[column] == 'mean':
                 val = pd.read_sql_query(f"SELECT CAST(AVG({column})) AS double precision FROM public.\"{tablename}\"", con=engine)
+                val = val.iloc[0, 0] if not val.empty else None
             else:
                 val = pd.read_sql_query(f"SELECT MODE() WITHIN GROUP (ORDER BY {column}) FROM public.\"{tablename}\"", con=engine)
+                val = val.iloc[0, 0] if not val.empty else None
 
 
             print('Done reading from database')
@@ -72,6 +74,8 @@ def impute_by_lookup_table(row, table_name : str='lookup_fintech_data_MET_P02_52
                 val = pd.read_sql_query(impute_query, con=engine)
                 if not val.empty:
                     val = val.iloc[0, 0]
+                else:
+                    val = None
 
             print('Done reading from database')
             return val

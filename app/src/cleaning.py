@@ -26,16 +26,55 @@ def clean_row(row : pd.DataFrame) -> pd.DataFrame:
 
     row_cleaned = M1.add_new_features(row_cleaned)
     # row_cleaned = M1.encode_
-    row_OneHotEncode(row_cleaned)
+    row_cleaned = row_OneHotEncode(row_cleaned)
     row_cleaned = M1.normalize_columns(row_cleaned)
 
     return row_cleaned
 
 
+# dictionary to map the column names to the coumn name and value
+enccolumn__column_value_dict = {
+    'loan_status_late_(31_120_days)': ('loan_status', 'late_(31_120_days)'),
+    'type_joint': ('type', 'joint'),
+    'type_individual': ('type', 'individual'),
+    'loan_status_current': ('loan_status', 'current'),
+    'loan_status_default': ('loan_status', 'default'),
+    'loan_status_fully_paid': ('loan_status', 'fully_paid'),
+    'loan_status_in_grace_period': ('loan_status', 'in_grace_period'),
+    'loan_status_late_(16_30_days)': ('loan_status', 'late_(16_30_days)'),
+    'home_ownership_other': ('home_ownership', 'other'),
+    'home_ownership_own': ('home_ownership', 'own'),
+    'home_ownership_rent': ('home_ownership', 'rent'),
+    'verification_status_source_verified': ('verification_status', 'source_verified'),
+    'verification_status_verified': ('verification_status', 'verified'),
+    'purpose_credit_card': ('purpose', 'credit_card'),
+    'purpose_debt_consolidation': ('purpose', 'debt_consolidation'),
+    'purpose_home_improvement': ('purpose', 'home_improvement'),
+    'purpose_house': ('purpose', 'house'),
+    'purpose_major_purchase': ('purpose', 'major_purchase'),
+    'purpose_medical': ('purpose', 'medical'),
+    'purpose_moving': ('purpose', 'moving'),
+    'purpose_other': ('purpose', 'other'),
+    'purpose_renewable_energy': ('purpose', 'renewable_energy'),
+    'purpose_small_business': ('purpose', 'small_business'),
+    'purpose_vacation': ('purpose', 'vacation'),
+    'purpose_wedding': ('purpose', 'wedding')
+}
+
+
 
 def row_OneHotEncode(row : pd.DataFrame) -> pd.DataFrame:
-    candidate_onehot_cols = list(filter(lambda x: x not in row.columns, db.get_columns_from_db(main.DATA_TABLENAME)))
+    candidate_onehot_cols = list(filter(lambda x: x not in row.columns and x in enccolumn__column_value_dict \
+                                        , db.get_columns_from_db(main.DATA_TABLENAME)))
     print("candidate_onehot_cols: ", candidate_onehot_cols)
+    for index, r in row.iterrows():
+        for col in candidate_onehot_cols:
+            # add new hot encoded columns
+            if col in enccolumn__column_value_dict:
+                column_name, value = enccolumn__column_value_dict[col]
+                row[col] = True if str(r[column_name]).replace(' ', '_').replace('-', '_').lower() == value else False
+    return row
+
 
 
 
@@ -43,8 +82,6 @@ def row_impute_and_label_encode(row : pd.DataFrame) -> pd.DataFrame:
     candidate_impute_cols = ['emp_title', 'int_rate', 'annual_inc_joint', 'emp_length', 'home_ownership', 'state', 'addr_state', 'letter_grade']
     leave_same_name = ['emp_length', 'home_ownership', 'grade']
     for index, r in row.iterrows():
-        # set the loan id to the actual index of the row
-        r['Loan Id'] = index
         for col in candidate_impute_cols:
             enterif = (col in row.columns)
             if enterif:
@@ -52,12 +89,14 @@ def row_impute_and_label_encode(row : pd.DataFrame) -> pd.DataFrame:
 
             if enterif:
                 val = db.get_imputation_from_db(r, main.DATA_TABLENAME, col)
+                # print(f"---setting row[{col}]: {val} instead of {r[col]}")
                 row[col] = val
             else: # label encoding
                 val = db.impute_by_lookup_table(r, main.LOOKUP_TABLENAME, col)
                 if val is not None:
                     if col in leave_same_name:
                         row[col] = val
+                        # print(f"---row[{col}]: {val}")
                     else:
                         row[f"{col}_encoded"] = val
     return row

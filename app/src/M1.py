@@ -114,6 +114,12 @@ def plot_correlation_heatmap(df: pd.DataFrame):
 def tidy_column_names(df: pd.DataFrame) -> pd.DataFrame:
     df_cpy = df.copy()
     df_cpy.columns = df.columns.str.replace(' ', '_').str.lower()
+    # adjust index name
+    if 'loan' in str(df_cpy.index.name).lower():
+        df_cpy.index.name = str(df_cpy.index.name).replace(' ', '_').lower()
+    else: # index the data by loan id
+        df_cpy = df_cpy.reset_index().set_index('loan_id')
+
     return df_cpy
 # fintech_df = tidy_column_names(fintech_df_uncleaned)
 

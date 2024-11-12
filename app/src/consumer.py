@@ -6,12 +6,14 @@ from datetime import datetime
 import main
 import cleaning as cl
 
-def run_consumer(kafka_url:str=None, topic:str=None):
+READ_COLS = ['timestamp','Loan Id','Customer Id','Emp Title','Emp Length','Home Ownership','Annual Inc','Annual Inc Joint','Verification Status','Zip Code','Addr State','Avg Cur Bal','Tot Cur Bal','Loan Status','Loan Amount','State','Funded Amount','Term','Int Rate','Grade','Issue Date','Pymnt Plan','Type','Purpose','Description']
+
+def run_consumer(kafka_url:str=None, topic:str=None) -> pd.DataFrame:
     if not kafka_url:
         kafka_url = main.KAFKA_URL
     if not topic:
         topic = main.TOPIC
-    df = pd.DataFrame(columns=['timestamp','Customer Id','Emp Title','Emp Length','Home Ownership','Annual Inc','Annual Inc Joint','Verification Status','Zip Code','Addr State','Avg Cur Bal','Tot Cur Bal','Loan Status','Loan Amount','State','Funded Amount','Term','Int Rate','Grade','Issue Date','Pymnt Plan','Type','Purpose','Description'])
+    df = pd.DataFrame(columns=READ_COLS)
 
     # Initialize Kafka consumer
     consumer = KafkaConsumer(
@@ -43,7 +45,7 @@ def run_consumer(kafka_url:str=None, topic:str=None):
                     
                     msg.value['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                    new_row = pd.DataFrame([msg.value], columns=['timestamp','Customer Id','Emp Title','Emp Length','Home Ownership','Annual Inc','Annual Inc Joint','Verification Status','Zip Code','Addr State','Avg Cur Bal','Tot Cur Bal','Loan Status','Loan Amount','State','Funded Amount','Term','Int Rate','Grade','Issue Date','Pymnt Plan','Type','Purpose','Description'])
+                    new_row = pd.DataFrame([msg.value], columns=READ_COLS)
                     # print("\n"*3, "raw data", new_row, "\n"*3, '-'*50)
                     # # new_row['Emp Title'] = None  ## to test the cleaning function
 
@@ -62,4 +64,14 @@ def run_consumer(kafka_url:str=None, topic:str=None):
     print(f"Received {len(df)} messages. raw data:")
     print(df.head())
 
+    # take the first row and clean it
+    cleaned_data = cl.clean_row(df.head(1))
+    # for all the other rows, clean them and append them to the cleaned_data
+    for i in range(1, len(df)):
+        cleaned_data = pd.concat([cleaned_data, cl.clean_row(df.iloc[[i]])], ignore_index=True)
+    
+    df = cleaned_data
+
     df.to_csv(f'{main.DATA_DIR}/{int(time.time())}-output.csv', index=False)
+
+    return df
