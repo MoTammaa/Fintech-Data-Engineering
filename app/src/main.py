@@ -26,9 +26,10 @@ if __name__ == '__main__':
 
     id = pr.start_producer('52_20136', KAFKA_URL, TOPIC)
     print(f'Producer started: {id}')
-    con.run_consumer(KAFKA_URL, TOPIC)
+    streamed_df = con.run_consumer(KAFKA_URL, TOPIC)
     print('Consumer stopped.')
     pr.stop_container(id)
     print('Producer stopped.')
 
+    # db.save_to_db(streamed_df, append=True, tablename=DATA_TABLENAME, subset=db.FULL_SCHEMA)
 

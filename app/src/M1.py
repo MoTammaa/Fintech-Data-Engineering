@@ -117,8 +117,11 @@ def tidy_column_names(df: pd.DataFrame) -> pd.DataFrame:
     # adjust index name
     if 'loan' in str(df_cpy.index.name).lower():
         df_cpy.index.name = str(df_cpy.index.name).replace(' ', '_').lower()
-    else: # index the data by loan id
-        df_cpy = df_cpy.reset_index().set_index('loan_id')
+    # else: # index the data by loan id
+    #     if 'loan_id' in df_cpy.columns:
+    #         df_cpy.set_index('loan_id', inplace=True)
+
+        
 
     return df_cpy
 # fintech_df = tidy_column_names(fintech_df_uncleaned)

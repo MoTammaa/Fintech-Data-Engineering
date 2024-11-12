@@ -22,10 +22,11 @@ def clean_row(row : pd.DataFrame) -> pd.DataFrame:
     """
     row_cleaned = tidy_up(row)
     row_cleaned = M1.remove_outliers_log(row_cleaned, M1.outliers_cols) # doesn't matter if it's a single row. The log transformation will be the same.
-    row_cleaned = row_impute_and_label_encode(row_cleaned)
+    row_cleaned = row_impute(row_cleaned)
 
     row_cleaned = M1.add_new_features(row_cleaned)
     # row_cleaned = M1.encode_
+    row_cleaned = row_label_encode(row_cleaned)
     row_cleaned = row_OneHotEncode(row_cleaned)
     row_cleaned = M1.normalize_columns(row_cleaned)
 
@@ -78,9 +79,8 @@ def row_OneHotEncode(row : pd.DataFrame) -> pd.DataFrame:
 
 
 
-def row_impute_and_label_encode(row : pd.DataFrame) -> pd.DataFrame:
+def row_impute(row : pd.DataFrame) -> pd.DataFrame:
     candidate_impute_cols = ['emp_title', 'int_rate', 'annual_inc_joint', 'emp_length', 'home_ownership', 'state', 'addr_state', 'letter_grade']
-    leave_same_name = ['emp_length', 'home_ownership', 'grade']
     for index, r in row.iterrows():
         for col in candidate_impute_cols:
             enterif = (col in row.columns)
@@ -91,8 +91,23 @@ def row_impute_and_label_encode(row : pd.DataFrame) -> pd.DataFrame:
                 val = db.get_imputation_from_db(r, main.DATA_TABLENAME, col)
                 # print(f"---setting row[{col}]: {val} instead of {r[col]}")
                 row[col] = val
-            else: # label encoding
+
+    # convert emp_length to int
+    row['emp_length'] = row['emp_length'].str.extract(r'(\d+)').astype(int)
+    return row
+
+def row_label_encode(row : pd.DataFrame) -> pd.DataFrame:
+    candidate_labelenc_cols = ['emp_title', 'int_rate', 'annual_inc_joint', 'emp_length', 'home_ownership', 'state', 'addr_state', 'letter_grade']
+    leave_same_name = ['emp_length', 'home_ownership', 'grade']
+    for index, r in row.iterrows():
+        for col in candidate_labelenc_cols:
+            enterif = (col in row.columns)
+            if enterif:
+                enterif = (enterif and pd.isnull(r[col]))
+
+            if not enterif: # label encoding
                 val = db.impute_by_lookup_table(r, main.LOOKUP_TABLENAME, col)
+                print(f"---label encoding row[{col}]: {r[col]} to {val}")
                 if val is not None:
                     if col in leave_same_name:
                         row[col] = val
@@ -100,7 +115,6 @@ def row_impute_and_label_encode(row : pd.DataFrame) -> pd.DataFrame:
                     else:
                         row[f"{col}_encoded"] = val
     return row
-
 
 def handling_outliers(df : pd.DataFrame) -> pd.DataFrame:
     """
