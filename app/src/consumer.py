@@ -66,9 +66,12 @@ def run_consumer(kafka_url:str=None, topic:str=None) -> pd.DataFrame:
 
     # take the first row and clean it
     cleaned_data = cl.clean_row(df.head(1))
-    # for all the other rows, clean them and append them to the cleaned_data
+    # for all the other rows, clean them and append them to the cleaned_data one by one
     for i in range(1, len(df)):
-        cleaned_data = pd.concat([cleaned_data, cl.clean_row(df.iloc[[i]])], ignore_index=True)
+        tobeprocessed = df.iloc[[i]]
+        cleaned_row = cl.clean_row(tobeprocessed)
+
+        cleaned_data = pd.concat([cleaned_data, cleaned_row], ignore_index=True)
     
     df = cleaned_data
 
