@@ -72,6 +72,6 @@ def run_consumer(kafka_url:str=None, topic:str=None) -> pd.DataFrame:
     
     df = cleaned_data
 
-    df.to_csv(f'{main.DATA_DIR}/{int(time.time())}-output.csv', index=False)
+    # df.to_csv(f'{main.DATA_DIR}/{int(time.time())}-output.csv', index=False)
 
     return df

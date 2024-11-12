@@ -39,9 +39,23 @@ lookup_table : pd.DataFrame = pd.DataFrame(columns=['column', 'original', 'imput
 # read the parquet file normally and show the first row just to make sure that the data is loaded correctly.
 
 # %%
+def read_csv_file(file_path=data_dir + 'fintech_data_38_52_20136.csv') -> pd.DataFrame:
+    fintech_df_uncleaned = pd.read_csv(file_path)
+    if 'loan_id' in fintech_df_uncleaned.columns:
+        fintech_df_uncleaned.set_index('loan_id', inplace=True)
+    elif 'Loan Id' in fintech_df_uncleaned.columns:
+        fintech_df_uncleaned.set_index('Loan Id', inplace=True)
+
+    return fintech_df_uncleaned
+
 def read_parquet_file(file_path=data_dir + 'fintech_data.parquet') -> pd.DataFrame:
     # global fintech_df_uncleaned, data_dir
-    fintech_df_uncleaned = pq.read_table(file_path).to_pandas().set_index('Loan Id')
+    fintech_df_uncleaned = pq.read_table(file_path).to_pandas()
+    if 'loan_id' in fintech_df_uncleaned.columns:
+        fintech_df_uncleaned.set_index('loan_id', inplace=True)
+    elif 'Loan Id' in fintech_df_uncleaned.columns:
+        fintech_df_uncleaned.set_index('Loan Id', inplace=True)
+
     return fintech_df_uncleaned
 # read_parquet_file().sample(2)
 
