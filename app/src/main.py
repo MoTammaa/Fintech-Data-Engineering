@@ -42,5 +42,5 @@ if __name__ == '__main__':
     pr.stop_container(id)
     print('Producer stopped.')
 
-    db.save_to_db(streamed_df, append=True, tablename=DATA_TABLENAME, subset=db.FULL_SCHEMA)
+    # db.save_to_db(streamed_df, append=True, tablename=DATA_TABLENAME, subset=db.FULL_SCHEMA)
 

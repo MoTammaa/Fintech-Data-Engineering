@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 import main
 import cleaning as cl
+import db
 
 READ_COLS = ['timestamp','Loan Id','Customer Id','Emp Title','Emp Length','Home Ownership','Annual Inc','Annual Inc Joint','Verification Status','Zip Code','Addr State','Avg Cur Bal','Tot Cur Bal','Loan Status','Loan Amount','State','Funded Amount','Term','Int Rate','Grade','Issue Date','Pymnt Plan','Type','Purpose','Description']
 
@@ -14,6 +15,7 @@ def run_consumer(kafka_url:str=None, topic:str=None) -> pd.DataFrame:
     if not topic:
         topic = main.TOPIC
     df = pd.DataFrame(columns=READ_COLS)
+    cleaned_data = None
 
     # Initialize Kafka consumer
     consumer = KafkaConsumer(
@@ -46,11 +48,22 @@ def run_consumer(kafka_url:str=None, topic:str=None) -> pd.DataFrame:
                     msg.value['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                     new_row = pd.DataFrame([msg.value], columns=READ_COLS)
+                    df = pd.concat([df, new_row], ignore_index=True)
+                    # ------------------------------------------------------------test
                     # print("\n"*3, "raw data", new_row, "\n"*3, '-'*50)
                     # # new_row['Emp Title'] = None  ## to test the cleaning function
 
                     # print("\n"*3, "cleaned data", cl.clean_row(new_row), "\n"*3, '-'*50)
-                    df = pd.concat([df, new_row], ignore_index=True)
+                    # ------------------------------------------------------------
+                    new_row_cleaned = cl.clean_row(new_row)
+                    if cleaned_data is None:
+                        cleaned_data = new_row_cleaned
+                    else:
+                        cleaned_data = pd.concat([cleaned_data, new_row_cleaned], ignore_index=True)
+
+                    db.save_to_db(new_row_cleaned, append=True, tablename=main.DATA_TABLENAME, subset=db.FULL_SCHEMA)
+
+
                 if foundEOF:
                     break
             if foundEOF:
@@ -64,17 +77,6 @@ def run_consumer(kafka_url:str=None, topic:str=None) -> pd.DataFrame:
     print(f"Received {len(df)} messages. raw data:")
     print(df.head())
 
-    # take the first row and clean it
-    cleaned_data = cl.clean_row(df.head(1))
-    # for all the other rows, clean them and append them to the cleaned_data one by one
-    for i in range(1, len(df)):
-        tobeprocessed = df.iloc[[i]]
-        cleaned_row = cl.clean_row(tobeprocessed)
-
-        cleaned_data = pd.concat([cleaned_data, cleaned_row], ignore_index=True)
-    
-    df = cleaned_data
-
     # df.to_csv(f'{main.DATA_DIR}/{int(time.time())}-output.csv', index=False)
 
-    return df
+    return df,cleaned_data
