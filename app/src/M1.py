@@ -771,8 +771,9 @@ def normalize_columns(df: pd.DataFrame, cols: list = None) -> pd.DataFrame:
 # I generated a lookup table globally, then in each function, I updated it with the new values for each step, imputations, encodings, etc.
 
 # %%
-def save_lookup_table(lookup_table: pd.DataFrame, data_dir: str = data_dir):
-    lookup_table.to_csv(data_dir + 'lookup_table.csv', index=False)
+def save_lookup_table(lookup_table: pd.DataFrame, data_dir: str = data_dir, filename: str = 'lookup_table'):
+    filename = filename if not filename.endswith('.csv') else filename + '.csv'
+    lookup_table.to_csv(data_dir + filename, index=False)
 # save_lookup_table(lookup_table, data_dir)
 # lookup_table.sample(10)
 
