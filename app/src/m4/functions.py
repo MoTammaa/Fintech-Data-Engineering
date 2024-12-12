@@ -114,4 +114,6 @@ def load_to_db():
 
 
 if __name__ == '__main__':
-    get_cleaned_dataset()
+    extract_cleaned()
+    transform()
+    load_to_db()
