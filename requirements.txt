@@ -6,5 +6,5 @@ matplotlib
 pyarrow
 Sqlalchemy
 psycopg2-binary
-kafka-python
+dash
 docker

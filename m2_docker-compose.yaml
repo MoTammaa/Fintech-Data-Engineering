@@ -22,7 +22,7 @@ services:
 
   pgdatabase:
     image: postgres:13
-    container_name: pgdatabase_m4
+    container_name: pgdatabase
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -38,7 +38,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin_m4
+    container_name: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: root@root.com
       PGADMIN_DEFAULT_PASSWORD: root
@@ -54,4 +54,31 @@ services:
 
   # ------------------------------------------------------------------------------------------
   # -----------------------------------------------------------------------
-  # ----------------------
+  # ---------------------- Zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  # ------------------------------------------------------------------------------------------
+  # -----------------------------------------------------------------------
+  # ---------------------- Kafka
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "fintech-topic:1:1" # topic:partitions:replication-factor
+    depends_on:
+      - zookeeper

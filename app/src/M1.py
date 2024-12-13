@@ -772,7 +772,7 @@ def normalize_columns(df: pd.DataFrame, cols: list = None) -> pd.DataFrame:
 
 # %%
 def save_lookup_table(lookup_table: pd.DataFrame, data_dir: str = data_dir, filename: str = 'lookup_table'):
-    filename = filename if not filename.endswith('.csv') else filename + '.csv'
+    filename = filename if filename.endswith('.csv') else filename + '.csv'
     lookup_table.to_csv(data_dir + filename, index=False)
 # save_lookup_table(lookup_table, data_dir)
 # lookup_table.sample(10)

@@ -17,7 +17,7 @@ def extract_cleaned() -> pd.DataFrame:
 
     # save the cleaned data & lookup to parquet file
     M1.save_cleaned_dataset_to_parquet(cleaned, DATA_TABLENAME + '_cleaning_output', DATA_DIR)
-    M1.save_lookup_table(M1.lookup_table, DATA_DIR, f'lookup_table_cleaning_output')
+    M1.save_lookup_table(M1.lookup_table, DATA_DIR, 'lookup_table_cleaning_output')
 
     return cleaned
 
@@ -26,14 +26,14 @@ def transform() -> pd.DataFrame:
     This function reads the dataset from the parquet file, transforms it then returns the transformed dataset.
     """
     # load data from parquet file
-    df = M1.read_parquet_file(f"{DATA_DIR}fintech_data_cleaning_output.parquet")
+    df = M1.read_parquet_file(f"{DATA_DIR}{DATA_TABLENAME}_cleaning_output.parquet")
     M1.lookup_table = pd.read_csv(f"{DATA_DIR}lookup_table_cleaning_output.csv")
 
     transformed = transformation(df)
 
     # save the cleaned data & lookup to parquet file
     M1.save_cleaned_dataset_to_parquet(transformed, DATA_TABLENAME + '_transformation_output', DATA_DIR)
-    M1.save_lookup_table(M1.lookup_table, DATA_DIR, f'lookup_table_transformation_output')
+    M1.save_lookup_table(M1.lookup_table, DATA_DIR, 'lookup_table_transformation_output')
 
     return transformed
    
@@ -100,15 +100,16 @@ def transformation(df : pd.DataFrame) -> pd.DataFrame:
 
 def load_to_db():
     import os, pandas as pd
-    if not (os.path.exists(f"{DATA_DIR}{DATA_TABLENAME}_tranformation_output.parquet") and os.path.exists(f"{DATA_DIR}lookup_table_tranformation_output.csv")):
+    if not (os.path.exists(f"{DATA_DIR}{DATA_TABLENAME}_transformation_output.parquet") and os.path.exists(f"{DATA_DIR}lookup_table_transformation_output.csv")):
         raise Exception("Clean Data does not exist. Please run the whole pipeline first")
     
-    print("Reading data from parquet file. Clean Data already exists.")
-    df = M1.read_parquet_file(f"{DATA_DIR}{DATA_TABLENAME}_tranformation_output.parquet")
-    lookup = pd.read_csv(f"{DATA_DIR}lookup_table_tranformation_output.csv")
+    df = M1.read_parquet_file(f"{DATA_DIR}{DATA_TABLENAME}_transformation_output.parquet")
+    lookup = pd.read_csv(f"{DATA_DIR}lookup_table_transformation_output.csv")
+    print('Successfully loaded files')
 
-    db.save_to_db(df, False, DATA_TABLENAME)
-    db.save_to_db(lookup, False, LOOKUP_TABLENAME)
+    # db.save_to_db(df, False, DATA_TABLENAME)
+    # db.save_to_db(lookup, False, LOOKUP_TABLENAME)
+    print('Successfully saved to database')
     return df
 
 
