@@ -1,6 +1,5 @@
 import M1
 import pandas as pd
-import main
 import db
 
 
@@ -13,7 +12,7 @@ def extract_cleaned() -> pd.DataFrame:
     This function reads the dataset from the parquet file and cleans it then returns the cleaned dataset.
     """
     # load data from parquet file
-    df = M1.read_parquet_file(f"{main.DATA_DIR}fintech_data.parquet")
+    df = M1.read_parquet_file(f"{DATA_DIR}fintech_data.parquet")
     cleaned = clean(df)
 
     # save the cleaned data & lookup to parquet file
@@ -27,8 +26,8 @@ def transform() -> pd.DataFrame:
     This function reads the dataset from the parquet file, transforms it then returns the transformed dataset.
     """
     # load data from parquet file
-    df = M1.read_parquet_file(f"{main.DATA_DIR}fintech_data_cleaning_output.parquet")
-    M1.lookup_table = pd.read_csv(f"{main.DATA_DIR}lookup_table_cleaning_output.csv")
+    df = M1.read_parquet_file(f"{DATA_DIR}fintech_data_cleaning_output.parquet")
+    M1.lookup_table = pd.read_csv(f"{DATA_DIR}lookup_table_cleaning_output.csv")
 
     transformed = transformation(df)
 
