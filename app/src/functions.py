@@ -6,18 +6,23 @@ import db
 LOOKUP_TABLENAME = 'lookup_fintech_data_MET_P02_52_20136'
 DATA_TABLENAME = 'fintech_data_MET_P02_52_20136_clean'
 DATA_DIR = '././data/'
+QUESTIONS = ['1. What is the distribution of loan amounts across different grades? (use letter grades or encoded grades (1-7) not grades from the uncleaned file)',
+             '2. How does the loan amount relate to annual income across states ? (Interactive)',
+             '3. What is the trend of loan issuance over the months (number of loans per month), filtered by year? (Interactive)',
+            '4. Which states have the highest average loan amount?',
+            '5. What is the percentage distribution of loan grades in the dataset?']
+
 
 def extract_cleaned() -> pd.DataFrame:
     """
     This function reads the dataset from the parquet file and cleans it then returns the cleaned dataset.
     """
     # load data from parquet file
-    df = M1.read_parquet_file(f"{DATA_DIR}fintech_data.parquet")
+    df, lookup = read_data('extract_cleaned')
     cleaned = clean(df)
 
     # save the cleaned data & lookup to parquet file
-    M1.save_cleaned_dataset_to_parquet(cleaned, DATA_TABLENAME + '_cleaning_output', DATA_DIR)
-    M1.save_lookup_table(M1.lookup_table, DATA_DIR, 'lookup_table_cleaning_output')
+    save_data(cleaned, M1.lookup_table, 'extract_cleaned')
 
     return cleaned
 
@@ -26,14 +31,13 @@ def transform() -> pd.DataFrame:
     This function reads the dataset from the parquet file, transforms it then returns the transformed dataset.
     """
     # load data from parquet file
-    df = M1.read_parquet_file(f"{DATA_DIR}{DATA_TABLENAME}_cleaning_output.parquet")
-    M1.lookup_table = pd.read_csv(f"{DATA_DIR}lookup_table_cleaning_output.csv")
+    df, lookup = read_data('transform')
+    M1.lookup_table = lookup
 
     transformed = transformation(df)
 
     # save the cleaned data & lookup to parquet file
-    M1.save_cleaned_dataset_to_parquet(transformed, DATA_TABLENAME + '_transformation_output', DATA_DIR)
-    M1.save_lookup_table(M1.lookup_table, DATA_DIR, 'lookup_table_transformation_output')
+    save_data(transformed, M1.lookup_table, 'transform')
 
     return transformed
    
@@ -97,18 +101,32 @@ def transformation(df : pd.DataFrame) -> pd.DataFrame:
 
     return df_transformed
 
+def read_data(current_step: str) -> tuple:
+    if 'transform' in current_step:
+        return M1.read_parquet_file(f"{DATA_DIR}{DATA_TABLENAME}_cleaning_output.parquet"), M1.read_csv_file(f"{DATA_DIR}lookup_table_cleaning_output.csv")
+    if 'load' in current_step or 'dash' in current_step:
+        return M1.read_parquet_file(f"{DATA_DIR}{DATA_TABLENAME}_transformation_output.parquet"), M1.read_csv_file(f"{DATA_DIR}lookup_table_transformation_output.csv")
+    # if 'clean' in current_step:
+    return M1.read_parquet_file(f"{DATA_DIR}fintech_data.parquet"), None
+
+def save_data(df: pd.DataFrame, lookup: pd.DataFrame, current_step: str):
+    if 'clean' in current_step:
+        M1.save_cleaned_dataset_to_parquet(df, DATA_TABLENAME + '_cleaning_output', DATA_DIR)
+        M1.save_lookup_table(lookup, DATA_DIR, 'lookup_table_cleaning_output')
+    elif 'transform' in current_step:
+        M1.save_cleaned_dataset_to_parquet(df, DATA_TABLENAME + '_transformation_output', DATA_DIR)
+        M1.save_lookup_table(lookup, DATA_DIR, 'lookup_table_transformation_output')
 
 def load_to_db():
     import os, pandas as pd
     if not (os.path.exists(f"{DATA_DIR}{DATA_TABLENAME}_transformation_output.parquet") and os.path.exists(f"{DATA_DIR}lookup_table_transformation_output.csv")):
         raise Exception("Clean Data does not exist. Please run the whole pipeline first")
     
-    df = M1.read_parquet_file(f"{DATA_DIR}{DATA_TABLENAME}_transformation_output.parquet")
-    lookup = pd.read_csv(f"{DATA_DIR}lookup_table_transformation_output.csv")
+    df, lookup = read_data('load_to_db')
     print('Successfully loaded files')
 
-    # db.save_to_db(df, False, DATA_TABLENAME)
-    # db.save_to_db(lookup, False, LOOKUP_TABLENAME)
+    db.save_to_db(df, False, DATA_TABLENAME)
+    db.save_to_db(lookup, False, LOOKUP_TABLENAME)
     print('Successfully saved to database')
     return df
 

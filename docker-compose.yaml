@@ -12,6 +12,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # Mount Docker socket
     # environment:
     #   - DOCKER_HOST=unix:///var/run/docker.sock # Set Docker host
+    ports:
+      - 8050:8050
     depends_on:
       - pgdatabase
     restart: "on-failure"
