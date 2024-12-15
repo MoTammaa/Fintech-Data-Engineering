@@ -699,7 +699,7 @@ def encode_categorical(df: pd.DataFrame, encoding_columns: list = encoding_candi
     for col in label_encoding_columns:
         fintech_df_encoded[col] = fintech_df_encoded[col].astype('category')
         fintech_df_encoded[col+'_encoded'] = fintech_df_encoded[col].cat.codes
-    fintech_df_encoded = pd.get_dummies(fintech_df_encoded, columns=one_hot_encoding_columns, prefix=one_hot_encoding_columns, drop_first=True)
+    fintech_df_encoded = pd.get_dummies(fintech_df_encoded, columns=one_hot_encoding_columns, prefix=one_hot_encoding_columns, drop_first=False)
     fintech_df_encoded.columns = fintech_df_encoded.columns.str.replace(' ', '_').str.replace('-', '_').str.lower()
 
     # store the encoding in the lookup table (column, original, imputed)

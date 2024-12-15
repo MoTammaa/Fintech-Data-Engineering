@@ -1,6 +1,6 @@
 /* styles.css */
 body {
-    background-color: #333333;
+    background-color: #1d1d1d;
     padding: 2rem;
     color: #f4f4f4;
     font-family: 'Arial', sans-serif;
@@ -17,13 +17,21 @@ body {
     margin-top: 1rem;
     padding: 1rem;
     border: 2px solid #ababab;
-    border-radius: 16px;
+    border-radius: 8px;
     box-shadow: 0 0 10px #7e7e7e;
+    background-color: #18191a;
 }
 
 .graph-title {
     word-wrap: break-word;
     white-space: initial;
     font-weight: lighter;
+}
+.my-dropdown{
+    margin: 1rem;
+}
+.my-dropdown * {
+    background-color: #333333;
+    color: #f4f4f4 !important;
 }
 
