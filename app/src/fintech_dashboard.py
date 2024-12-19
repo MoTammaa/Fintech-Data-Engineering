@@ -21,30 +21,21 @@ def create_dashboard():
     loan_amount_across_grades.update_layout(xaxis_title='Letter Grade', yaxis_title='Loan Amount')
 
     # Question 2
-    @app.callback( Output('graphcont1', 'children'), Input('loan_amount_vs_annual_inc_across_states-dropdown', 'value'))
+    @app.callback( Output('loan_amount_vs_annual_inc_across_states', 'figure'), Input('loan_amount_vs_annual_inc_across_states-dropdown', 'value'))
     def update_loan_amount_vs_annual_inc_across_states(value):
-        if not value:
-            return html.Div()
-        dff = fintech_df[fintech_df['state'] == value] if value.lower() != 'all' else fintech_df
+        dff = fintech_df[fintech_df['state'] == value] if (not value) or value.lower() != 'all' else fintech_df
         return px.scatter(dff, x='loan_amount', y='annual_inc', color='loan_status')\
                          .update_layout(xaxis_title='Loan Amount', yaxis_title='Annual Income')
         
 
     # Question 3
-    @app.callback( Output('graphcont2', 'children'), Input('n_loans_per_month-dropdown', 'value'))
+    @app.callback(Output('n_loans_per_month', 'figure'), Input('n_loans_per_month-dropdown', 'value'))
     def update_n_loans_per_month(value):
-        if not value:
-            return html.Div()
-        if value.lower() == 'all':
-            dff: pd.DataFrame = fintech_df
-            dff['issue_m_y'] = pd.to_datetime(dff['issue_date']).dt.to_period('M')
-            dff = dff.groupby('issue_m_y').size().reset_index(name='count').sort_values('issue_m_y')
-            return px.line(dff, x='issue_m_y', y='count')\
-                                .update_layout(xaxis_title='Issue Month in Year', yaxis_title='Number of Loans')
-        dff: pd.DataFrame = fintech_df[fintech_df['issue_year'] == int(value)]
-        dff = dff.groupby('month_number').size().reset_index(name='count').sort_values('month_number')
-        return px.line(dff, x='month_number', y='count')\
-                            .update_layout(xaxis_title='Issue Month', yaxis_title='Number of Loans')
+        dff: pd.DataFrame = fintech_df if (not value) or str(value).lower() == 'all' else fintech_df[fintech_df['issue_year'] == int(value)] 
+        dff = dff.groupby('month_number').size().reset_index(name='count').sort_values('month_number') 
+        figure = px.line(dff, x='month_number', y='count')\
+            .update_layout(xaxis_title='Issue Month', yaxis_title='Number of Loans') 
+        return figure
 
     # Question 4
     avg_loan_amount_states = px.bar(
@@ -83,7 +74,7 @@ def create_dashboard():
                 value='All', id='loan_amount_vs_annual_inc_across_states-dropdown', className='my-dropdown'
             ),
             dcc.Graph(id='loan_amount_vs_annual_inc_across_states', className='my-graph')
-        ], className='graph-container', id='graph'),
+        ], className='graph-container', id='graphcont1'),
 
         # Question 3
         html.Div(children=[
@@ -122,6 +113,9 @@ def adjust_df_to_be_ready_for_viewing(df):
 
     # add issue_year column
     df['issue_year'] = pd.to_datetime(df['issue_date']).dt.year
+    # add issue_m_y column
+    df['issue_m_y'] = pd.to_datetime(df['issue_date']).dt.to_period('M')
+    df['issue_m_y'] = df['issue_m_y'].astype(str)
     return df
 
 if __name__ == '__main__':
