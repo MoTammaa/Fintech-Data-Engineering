@@ -8,3 +8,4 @@ Sqlalchemy
 psycopg2-binary
 dash
 docker
+apache-airflow

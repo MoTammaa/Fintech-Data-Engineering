@@ -165,3 +165,8 @@ cython_debug/
 data_pgadmin/
 data_postgres/
 testt.csv
+titanic_etl_postgres/
+logs/
+docker-compose copy.yaml
+Dockerfile copy
+trial.yaml

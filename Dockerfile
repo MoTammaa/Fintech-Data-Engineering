@@ -1,9 +1,12 @@
-FROM python:3.11-slim
+FROM apache/airflow:2.10.3
+USER root
 
 # Install PostgreSQL development packages
 RUN apt-get update && \
     apt-get install -y libpq-dev gcc && \
     rm -rf /var/lib/apt/lists/*
+
+USER airflow
 
 WORKDIR /app
 
@@ -18,7 +21,7 @@ RUN pip install -r requirements.txt
 # Copy the rest of the application code
 # COPY . /app
 
-EXPOSE 8050:8050
+EXPOSE 8051:8051
 
 # ENTRYPOINT ["python", "src/functions.py"]
-ENTRYPOINT ["python", "src/fintech_dashboard.py"]
+# ENTRYPOINT ["python", "src/fintech_dashboard.py"]

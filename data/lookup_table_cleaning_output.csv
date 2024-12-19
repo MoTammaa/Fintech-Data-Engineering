@@ -1,0 +1,4 @@
+column,original,imputed
+emp_length,< 1 year,0
+emp_length,10+ years,10
+home_ownership,ANY,OTHER

@@ -5,7 +5,7 @@ import db
 
 LOOKUP_TABLENAME = 'lookup_fintech_data_MET_P02_52_20136'
 DATA_TABLENAME = 'fintech_data_MET_P02_52_20136_clean'
-DATA_DIR = '././data/'
+DATA_DIR = '/opt/airflow/data/'
 QUESTIONS = ['1. What is the distribution of loan amounts across different grades? (use letter grades or encoded grades (1-7) not grades from the uncleaned file)',
              '2. How does the loan amount relate to annual income across states ? (Interactive)',
              '3. What is the trend of loan issuance over the months (number of loans per month), filtered by year? (Interactive)',

@@ -101,6 +101,8 @@ def create_dashboard():
 
     ], className='container')
 
+    app.run(debug=True, port=8051, host='0.0.0.0')
+
 
 def adjust_df_to_be_ready_for_viewing(df):
     # revert the log transformation of the loan amount
