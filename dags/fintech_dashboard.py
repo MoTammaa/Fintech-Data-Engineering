@@ -60,6 +60,12 @@ def create_dashboard():
     app.layout = html.Div([
         html.H1(children='Fintech Dashboard for Mo Tammaa', style={'textAlign':'center'}, className='title'),
 
+        html.Div(children=[
+            html.Plaintext(children='This dashboard was created by Mohamed Tammaa, id 52-20136', className='footer'),
+            html.Plaintext(children='Thank you for your help throughout the course', className='footer')
+        ], className='footer-container'),
+
+
         # Question 1
         html.Div(children=[
             html.H3(children=fn.QUESTIONS[0], className='graph-title'),
@@ -98,10 +104,8 @@ def create_dashboard():
             dcc.Graph(id='loan_grades_distribution', figure=loan_grades_distribution, className='my-graph')
         ], className='graph-container', id='graphcont4')
 
-
     ], className='container')
 
-    print('I NEED HELPPPPP')
     app.run(debug=True, port=8050, host='0.0.0.0')
 
 
