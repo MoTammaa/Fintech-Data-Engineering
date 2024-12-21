@@ -21,7 +21,7 @@ RUN pip install -r requirements.txt
 # Copy the rest of the application code
 # COPY . /app
 
-EXPOSE 8051:8051
+# EXPOSE 8051:8051
 
 # ENTRYPOINT ["python", "src/functions.py"]
 # ENTRYPOINT ["python", "src/fintech_dashboard.py"]

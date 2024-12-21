@@ -79,8 +79,6 @@ x-airflow-common: &airflow-common
     # TODO: add more volumes for data
     - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
   user: "${AIRFLOW_UID:-50000}:0"
-  # ports:
-  #   - 8051:8051
   depends_on: &airflow-common-depends-on
     redis:
       condition: service_healthy
@@ -116,20 +114,33 @@ services:
     ports:
       - 5432:5432
 
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin_m4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: root@root.com
-  #     PGADMIN_DEFAULT_PASSWORD: root
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_m4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: root@root.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - 8090:80
+    depends_on:
+      - pgdatabase
+    restart: on-failure
+    volumes:
+      - ./app/volumes/data_pgadmin:/var/lib/pgadmin
+      - ./app/volumes/data_pgadmin/sessions:/var/lib/pgadmin/sessions
+
+  # dash_app:
+  #   build: .
+  #   container_name: dash_app
   #   ports:
-  #     - 8090:80
-  #   depends_on:
-  #     - pgdatabase
-  #   restart: on-failure
+  #     - "8051:8051"
   #   volumes:
-  #     - ./app/volumes/data_pgadmin:/var/lib/pgadmin
-  #     - ./app/volumes/data_pgadmin/sessions:/var/lib/pgadmin/sessions
+  #     - ./data:/opt/airflow/data
+  #     - ./dags:/opt/airflow/dags
+  #   command: python /opt/airflow/dags/fintech_dashboard.py
+  #   depends_on:
+  #     - postgres
+  #     - redis
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
@@ -195,6 +206,8 @@ services:
       # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
       DUMB_INIT_SETSID: "0"
     restart: always
+    ports:
+      - "8050:8050"
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:

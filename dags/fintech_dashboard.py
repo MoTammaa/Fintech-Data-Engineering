@@ -7,9 +7,9 @@ import numpy as np
 
 
 
-app = Dash()
 
 def create_dashboard():
+    app = Dash()
     fintech_df: pd.DataFrame
     fintech_df, lookup = fn.read_data('dashboard')
 
@@ -70,7 +70,7 @@ def create_dashboard():
         html.Div(children=[
             html.H3(children=fn.QUESTIONS[1], className='graph-title'),
             dcc.Dropdown(
-                options=[{'label': state, 'value': state} for state in ['All','testymonial'] + fintech_df['state'].unique().tolist()],
+                options=[{'label': state, 'value': state} for state in ['All'] + fintech_df['state'].unique().tolist()],
                 value='All', id='loan_amount_vs_annual_inc_across_states-dropdown', className='my-dropdown'
             ),
             dcc.Graph(id='loan_amount_vs_annual_inc_across_states', className='my-graph')
@@ -101,7 +101,8 @@ def create_dashboard():
 
     ], className='container')
 
-    app.run(debug=True, port=8051, host='0.0.0.0')
+    print('I NEED HELPPPPP')
+    app.run(debug=True, port=8050, host='0.0.0.0')
 
 
 def adjust_df_to_be_ready_for_viewing(df):
@@ -122,7 +123,7 @@ def adjust_df_to_be_ready_for_viewing(df):
 
 if __name__ == '__main__':
     create_dashboard()
-    app.run(debug=True, port=8051, host='0.0.0.0')
+#     app.run(debug=True, port=8051, host='0.0.0.0')
 
 # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder_unfiltered.csv')
 

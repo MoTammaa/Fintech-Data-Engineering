@@ -4,6 +4,7 @@
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 
 import functions as fn
 import fintech_dashboard as fdsh
@@ -106,10 +107,16 @@ with DAG(
         python_callable = fn.load_to_db
     )
 
-    show_dashboard_task = PythonOperator(
-        task_id = 'show_dashboard',
-        python_callable = fdsh.create_dashboard
+    # show_dashboard_task = PythonOperator(
+    #     task_id = 'show_dashboard',
+    #     python_callable = fdsh.create_dashboard
+    # )
+
+    show_dashboard_task_bash = BashOperator(
+        task_id = 'show_dashboard_bash',
+        bash_command = 'python /opt/airflow/dags/fintech_dashboard.py'
     )
+        
 
     # Define the task dependencies
-    extract_clean_task >> transform_task >> load_to_postgres_task >> show_dashboard_task
+    extract_clean_task >> transform_task >> load_to_postgres_task >> show_dashboard_task_bash
