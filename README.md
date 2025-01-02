@@ -55,7 +55,7 @@ This project involves working with a fintech dataset to perform exploratory data
    docker compose up --build
    ```
 4. Configure PostgreSQL and Kafka as per the documentation.
-5. Execute the ETL pipeline via Airflow.
+5. Execute the ETL pipeline via Airflow at `http://localhost:8080/`
 6. Access the dashboard at `http://0.0.0.0:8050/`.
 
 ---
